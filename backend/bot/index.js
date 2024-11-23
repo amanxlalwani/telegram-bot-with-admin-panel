@@ -2,35 +2,34 @@ const { Telegraf } = require("telegraf");
 const axios = require("axios");
 const cron = require("node-cron");
 const dotenv = require("dotenv");
-const {getUser, addUser, removeUser, getUsers } = require("./commands");
+const { getUser, addUser, removeUser, getUsers } = require("./commands");
 const db = require("../config/db");
-const Settings = require('../models/settings');
-const express = require('express');
-const dayjs = require("dayjs");
+const Settings = require("../models/settings");
+const express = require("express");
+const { format } = require("date-fns");
+const { utcToZonedTime } = require("date-fns-tz");
 const { setServers } = require("dns");
 const settings = require("../models/settings");
 dotenv.config();
-let WEATHER_API_KEY="";
-async function setupServer(){
-await db.connect();
-bot.launch();
+let WEATHER_API_KEY = "";
+const timeZone = "Asia/Kolkata";
+async function setupServer() {
+  await db.connect();
+  bot.launch();
 
-
-const settings=await Settings.findOne({key:"WEATHER_API_KEY"});
-WEATHER_API_KEY=settings.value;
-setInterval(async ()=>{
-  const settings=await Settings.findOne({key:"WEATHER_API_KEY"});
-  WEATHER_API_KEY=settings.value;
-},600000)
+  const settings = await Settings.findOne({ key: "WEATHER_API_KEY" });
+  WEATHER_API_KEY = settings.value;
+  setInterval(async () => {
+    const settings = await Settings.findOne({ key: "WEATHER_API_KEY" });
+    WEATHER_API_KEY = settings.value;
+  }, 600000);
 }
-
 
 const app = express();
 
 //initializing bot
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
-
 
 // Commands
 bot.start((ctx) => {
@@ -59,8 +58,12 @@ To get started, use **/subscribe <city>** to set up your daily weather updates. 
     { parse_mode: "Markdown" }
   );
 });
-bot.command("subscribe", (ctx) => {addUser(ctx) });
-bot.command("unsubscribe", (ctx) => {removeUser(ctx)});
+bot.command("subscribe", (ctx) => {
+  addUser(ctx);
+});
+bot.command("unsubscribe", (ctx) => {
+  removeUser(ctx);
+});
 bot.command("getweather", (ctx) => {
   sendWeatherUpdate(ctx);
 });
@@ -68,32 +71,33 @@ bot.command("getweather", (ctx) => {
 async function sendWeatherUpdate(ctx) {
   const user = await getUser(ctx);
 
-  if(user){
-    try{
-    if(user.blocked){
-      ctx.reply("Sorry!You have been blocked by the admin.")
-    }
-    else{
-      const weather = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${user.city}&appid=${WEATHER_API_KEY}`
-      );
-      const sunriseTime = dayjs(weather.data.sys.sunrise * 1000)
-      .locale("en-in")
-      .format("hh:mm A");
-    const sunsetTime = dayjs(weather.data.sys.sunset * 1000)
-      .locale("en-in")
-      .format("hh:mm A");
-      bot.telegram.sendMessage(
-        user.chatId,
-        `         
+  if (user) {
+    try {
+      if (user.blocked) {
+        ctx.reply("Sorry!You have been blocked by the admin.");
+      } else {
+        const weather = await axios.get(
+          `https://api.openweathermap.org/data/2.5/weather?q=${user.city}&appid=${WEATHER_API_KEY}`
+        );
+        const sunriseTime = format(
+          utcToZonedTime(new Date(weather.data.sys.sunrise * 1000), timeZone),
+          "hh:mm a"
+        );
+        const sunsetTime = format(
+          utcToZonedTime(new Date(weather.data.sys.sunset * 1000), timeZone),
+          "hh:mm a"
+        );
+        bot.telegram.sendMessage(
+          user.chatId,
+          `         
           🌤 *Weather Update for ${user.city}* 🌤
           
           *Current Condition:* ${weather.data.weather[0].description} 🌫
           *Temperature:* ${(weather.data.main.temp - 273.15).toFixed(
             1
           )}°C (Feels like ${(weather.data.main.feels_like - 273.15).toFixed(
-          1
-        )}°C)
+            1
+          )}°C)
           *Humidity:* ${weather.data.main.humidity}%
           *Pressure:* ${weather.data.main.pressure} hPa
           *Visibility:* ${(weather.data.visibility / 1000).toFixed(1)} km
@@ -104,37 +108,41 @@ async function sendWeatherUpdate(ctx) {
         
         Stay safe and have a great day! 🌞
         Made By Aman Lalwani`,
-        { parse_mode: "Markdown" }
-      ); 
-    } 
+          { parse_mode: "Markdown" }
+        );
+      }
+    } catch (err) {
+      if (err.response.status == 404) {
+        ctx.reply("Please subscribe to valid city.");
+      } else if (err.response.status == 401) {
+        ctx.reply("Something went wrong!");
+        console.log("Invalid Weather API key.");
+      }
     }
-    catch(err){ if(err.response.status == 404){ctx.reply("Please subscribe to valid city.")} 
-    else if(err.response.status == 401){ctx.reply("Something went wrong!"); console.log("Invalid Weather API key.");
-    }
-  }
-  }
-  else{
-     ctx.reply("To get weather updates please first subscribe using /subscribe <city> command.")
+  } else {
+    ctx.reply(
+      "To get weather updates please first subscribe using /subscribe <city> command."
+    );
   }
 }
-
-
 
 // Scheduler for sending everyday weather updates
 cron.schedule("0 9 * * *", async () => {
   const users = await getUsers();
   users.forEach(async (user) => {
-    try{
-      if(!user.blocked){
+    try {
+      if (!user.blocked) {
         const weather = await axios.get(
           `https://api.openweathermap.org/data/2.5/weather?q=${user.city}&appid=${WEATHER_API_KEY}`
         );
-        const sunriseTime = dayjs(weather.data.sys.sunrise * 1000)
-      .locale("en-in")
-      .format("hh:mm A");
-    const sunsetTime = dayjs(weather.data.sys.sunset * 1000)
-      .locale("en-in")
-      .format("hh:mm A");
+        const sunriseTime = format(
+          utcToZonedTime(new Date(weather.data.sys.sunrise * 1000), timeZone),
+          "hh:mm a"
+        );
+        const sunsetTime = format(
+          utcToZonedTime(new Date(weather.data.sys.sunset * 1000), timeZone),
+          "hh:mm a"
+        );
         bot.telegram.sendMessage(
           user.chatId,
           `         
@@ -149,7 +157,9 @@ cron.schedule("0 9 * * *", async () => {
             *Humidity:* ${weather.data.main.humidity}%
             *Pressure:* ${weather.data.main.pressure} hPa
             *Visibility:* ${(weather.data.visibility / 1000).toFixed(1)} km
-            *Wind:* ${weather.data.wind.speed} m/s from ${weather.data.wind.deg}°
+            *Wind:* ${weather.data.wind.speed} m/s from ${
+            weather.data.wind.deg
+          }°
           
             ☀️ *Sunrise:* ${sunriseTime}  
            🌇 *Sunset:* ${sunsetTime}
@@ -157,22 +167,26 @@ cron.schedule("0 9 * * *", async () => {
           Stay safe and have a great day! 🌞
           Made By Aman Lalwani`,
           { parse_mode: "Markdown" }
-        ); 
-      } 
+        );
       }
-      catch(err){ if(err.response.status == 404){bot.telegram.sendMessage(user.chatId,"Please subscribe to valid city to receive regular updates.")} 
-      else if(err.response.status == 401){ctx.reply("Something went wrong!"); console.log("Invalid Weather API key.");
+    } catch (err) {
+      if (err.response.status == 404) {
+        bot.telegram.sendMessage(
+          user.chatId,
+          "Please subscribe to valid city to receive regular updates."
+        );
+      } else if (err.response.status == 401) {
+        ctx.reply("Something went wrong!");
+        console.log("Invalid Weather API key.");
       }
     }
   });
 });
 
-
-
-
-
 app.listen(8000, () => {
-  setupServer().then(()=>{console.log("Bot is running!");});
+  setupServer().then(() => {
+    console.log("Bot is running!");
+  });
 });
 
-module.exports={bot};
+module.exports = { bot };
