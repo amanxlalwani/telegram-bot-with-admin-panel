@@ -15,7 +15,7 @@ async function setupServer(){
 await db.connect();
 bot.launch();
 
-const app = express();
+
 const settings=await Settings.findOne({key:"WEATHER_API_KEY"});
 WEATHER_API_KEY=settings.value;
 setInterval(async ()=>{
@@ -25,7 +25,7 @@ setInterval(async ()=>{
 }
 
 
-
+const app = express();
 
 //initializing bot
 
