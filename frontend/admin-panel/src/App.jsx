@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import SignIn from './components/SignIn';
 import AdminPanel from './components/AdminPanel';
 import axios from 'axios';
-import { data } from 'autoprefixer';
-import toast, { Toaster } from 'react-hot-toast';
+
+import  { Toaster } from 'react-hot-toast';
 
 function App() {
     const BACKEND_URL = "https://admin-panel-ez0l.onrender.com";
