@@ -19,6 +19,6 @@ app.use("/auth",authRoutes);
 app.use('/settings',settingsRoutes);
 app.use('/users', usersRoutes);
 
-app.listen(process.env.PORT || 3000, () => {
+app.listen(8000, () => {
     console.log('Admin panel running!');
 });
