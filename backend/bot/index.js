@@ -7,7 +7,7 @@ const db = require("../config/db");
 const Settings = require("../models/settings");
 const express = require("express");
 const { format } = require("date-fns");
-const { utcToZonedTime } = require("date-fns-tz");
+const { toZonedTime } = require("date-fns-tz");
 const { setServers } = require("dns");
 const settings = require("../models/settings");
 dotenv.config();
@@ -80,11 +80,11 @@ async function sendWeatherUpdate(ctx) {
           `https://api.openweathermap.org/data/2.5/weather?q=${user.city}&appid=${WEATHER_API_KEY}`
         );
         const sunriseTime = format(
-          utcToZonedTime(new Date(weather.data.sys.sunrise * 1000), timeZone),
+          toZonedTime(new Date(weather.data.sys.sunrise * 1000), timeZone),
           "hh:mm a"
         );
         const sunsetTime = format(
-          utcToZonedTime(new Date(weather.data.sys.sunset * 1000), timeZone),
+          toZonedTime(new Date(weather.data.sys.sunset * 1000), timeZone),
           "hh:mm a"
         );
         bot.telegram.sendMessage(
@@ -112,11 +112,20 @@ async function sendWeatherUpdate(ctx) {
         );
       }
     } catch (err) {
-      if (err.response.status == 404) {
-        ctx.reply("Please subscribe to valid city.");
-      } else if (err.response.status == 401) {
+      console.log(err);
+      
+      if (err.response?.status == 404) {
+        bot.telegram.sendMessage(
+          user.chatId,
+          "Please subscribe to valid city to receive regular updates."
+        );
+      } else if (err.response?.status == 401) {
         ctx.reply("Something went wrong!");
         console.log("Invalid Weather API key.");
+      }
+      else{
+        console.log(err);
+        
       }
     }
   } else {
@@ -136,11 +145,11 @@ cron.schedule("0 9 * * *", async () => {
           `https://api.openweathermap.org/data/2.5/weather?q=${user.city}&appid=${WEATHER_API_KEY}`
         );
         const sunriseTime = format(
-          utcToZonedTime(new Date(weather.data.sys.sunrise * 1000), timeZone),
+          toZonedTime(new Date(weather.data.sys.sunrise * 1000), timeZone),
           "hh:mm a"
         );
         const sunsetTime = format(
-          utcToZonedTime(new Date(weather.data.sys.sunset * 1000), timeZone),
+          toZonedTime(new Date(weather.data.sys.sunset * 1000), timeZone),
           "hh:mm a"
         );
         bot.telegram.sendMessage(
@@ -170,14 +179,20 @@ cron.schedule("0 9 * * *", async () => {
         );
       }
     } catch (err) {
-      if (err.response.status == 404) {
+      console.log(err);
+      
+      if (err.response?.status == 404) {
         bot.telegram.sendMessage(
           user.chatId,
           "Please subscribe to valid city to receive regular updates."
         );
-      } else if (err.response.status == 401) {
+      } else if (err.response?.status == 401) {
         ctx.reply("Something went wrong!");
         console.log("Invalid Weather API key.");
+      }
+      else{
+        console.log(err);
+        
       }
     }
   });
