@@ -44,7 +44,7 @@ bot.command("getweather", (ctx) => {
 
 async function sendWeatherUpdate(ctx) {
   const user = await getUser(ctx);
-  console.log(user);
+
   if(user){
     try{
     if(user.blocked){
@@ -54,7 +54,6 @@ async function sendWeatherUpdate(ctx) {
       const weather = await axios.get(
         `https://api.openweathermap.org/data/2.5/weather?q=${user.city}&appid=${WEATHER_API_KEY}`
       );
-      console.log(weather);
 
       bot.telegram.sendMessage(
         user.chatId,

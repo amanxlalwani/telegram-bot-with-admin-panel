@@ -19,7 +19,6 @@ async function addUser(ctx) {
 }
 catch(err){
     console.log(err);
-    console.log("Something went wrong!");
     return ctx.reply("Something went wrong! Try again after sometime.");
   }
 }
@@ -31,7 +30,6 @@ async function removeUser(ctx) {
     ctx.reply('Unsubscribed from weather updates.');}
     catch(err){
         console.log(err);
-        console.log("Something went wrong!");
         return ctx.reply("Something went wrong! Try again after sometime.");
       }
 }
@@ -41,7 +39,7 @@ async function getUsers() {
     return await User.find();}
     catch(err){
         console.log(err);
-        console.log("Something went wrong!");
+ 
         return ctx.reply("Something went wrong! Try again after sometime.");
       }    
 }
@@ -50,7 +48,7 @@ async function getUser(ctx) {
     return await User.findOne({ chatId: ctx.chat.id });}
     catch(err){
         console.log(err);
-        console.log("Something went wrong!");
+
         return ctx.reply("Something went wrong! Try again after sometime.");
       }
 }
