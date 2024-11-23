@@ -113,7 +113,7 @@ async function sendWeatherUpdate(ctx) {
       }
     } catch (err) {
       console.log(err);
-      
+
       if (err.response?.status == 404) {
         bot.telegram.sendMessage(
           user.chatId,
@@ -122,10 +122,8 @@ async function sendWeatherUpdate(ctx) {
       } else if (err.response?.status == 401) {
         ctx.reply("Something went wrong!");
         console.log("Invalid Weather API key.");
-      }
-      else{
+      } else {
         console.log(err);
-        
       }
     }
   } else {
@@ -180,7 +178,7 @@ cron.schedule("0 9 * * *", async () => {
       }
     } catch (err) {
       console.log(err);
-      
+
       if (err.response?.status == 404) {
         bot.telegram.sendMessage(
           user.chatId,
@@ -189,10 +187,8 @@ cron.schedule("0 9 * * *", async () => {
       } else if (err.response?.status == 401) {
         ctx.reply("Something went wrong!");
         console.log("Invalid Weather API key.");
-      }
-      else{
+      } else {
         console.log(err);
-        
       }
     }
   });
