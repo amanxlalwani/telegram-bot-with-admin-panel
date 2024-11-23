@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./admin/app.js && node ./bot/index.js"
+    "server": "node ./admin/app.js",
+    "bot":"node ./bot/index.js"
   },
   "keywords": [],
   "author": "",
