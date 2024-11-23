@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 const {getUser, addUser, removeUser, getUsers } = require("./commands");
 const db = require("../config/db");
 const Settings = require('../models/settings');
-
+const express = require('express');
 
 const { setServers } = require("dns");
 const settings = require("../models/settings");
@@ -14,6 +14,8 @@ let WEATHER_API_KEY="";
 async function setupServer(){
 await db.connect();
 bot.launch();
+
+const app = express();
 const settings=await Settings.findOne({key:"WEATHER_API_KEY"});
 WEATHER_API_KEY=settings.value;
 setInterval(async ()=>{
@@ -142,6 +144,10 @@ cron.schedule("13 17 * * *", async () => {
 
 
 
-setupServer().then(()=>{console.log("Bot is running!");});
+
+
+app.listen(8000, () => {
+  setupServer().then(()=>{console.log("Bot is running!");});
+});
 
 module.exports={bot};
