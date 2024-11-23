@@ -6,7 +6,7 @@ const {getUser, addUser, removeUser, getUsers } = require("./commands");
 const db = require("../config/db");
 const Settings = require('../models/settings');
 const express = require('express');
-
+const dayjs = require("dayjs");
 const { setServers } = require("dns");
 const settings = require("../models/settings");
 dotenv.config();
@@ -77,7 +77,12 @@ async function sendWeatherUpdate(ctx) {
       const weather = await axios.get(
         `https://api.openweathermap.org/data/2.5/weather?q=${user.city}&appid=${WEATHER_API_KEY}`
       );
-
+      const sunriseTime = dayjs(weather.data.sys.sunrise * 1000)
+      .locale("en-in")
+      .format("hh:mm A");
+    const sunsetTime = dayjs(weather.data.sys.sunset * 1000)
+      .locale("en-in")
+      .format("hh:mm A");
       bot.telegram.sendMessage(
         user.chatId,
         `         
@@ -94,12 +99,8 @@ async function sendWeatherUpdate(ctx) {
           *Visibility:* ${(weather.data.visibility / 1000).toFixed(1)} km
           *Wind:* ${weather.data.wind.speed} m/s from ${weather.data.wind.deg}°
         
-          ☀️ *Sunrise:* ${new Date(
-            weather.data.sys.sunrise * 1000
-          ).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}  
-         🌇 *Sunset:* ${new Date(
-           weather.data.sys.sunset * 1000
-         ).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+          ☀️ *Sunrise:* ${sunriseTime}  
+         🌇 *Sunset:* ${sunsetTime}
         
         Stay safe and have a great day! 🌞
         Made By Aman Lalwani`,
@@ -128,6 +129,12 @@ cron.schedule("0 9 * * *", async () => {
         const weather = await axios.get(
           `https://api.openweathermap.org/data/2.5/weather?q=${user.city}&appid=${WEATHER_API_KEY}`
         );
+        const sunriseTime = dayjs(weather.data.sys.sunrise * 1000)
+      .locale("en-in")
+      .format("hh:mm A");
+    const sunsetTime = dayjs(weather.data.sys.sunset * 1000)
+      .locale("en-in")
+      .format("hh:mm A");
         bot.telegram.sendMessage(
           user.chatId,
           `         
@@ -144,12 +151,8 @@ cron.schedule("0 9 * * *", async () => {
             *Visibility:* ${(weather.data.visibility / 1000).toFixed(1)} km
             *Wind:* ${weather.data.wind.speed} m/s from ${weather.data.wind.deg}°
           
-            ☀️ *Sunrise:* ${new Date(
-              weather.data.sys.sunrise * 1000
-            ).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}  
-           🌇 *Sunset:* ${new Date(
-             weather.data.sys.sunset * 1000
-           ).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+            ☀️ *Sunrise:* ${sunriseTime}  
+           🌇 *Sunset:* ${sunsetTime}
           
           Stay safe and have a great day! 🌞
           Made By Aman Lalwani`,
