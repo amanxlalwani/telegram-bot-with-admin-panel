@@ -33,9 +33,32 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 
 
 // Commands
-bot.start((ctx) =>
-  ctx.reply("Welcome! Use /subscribe <city> to get weather updates.")
-);
+bot.start((ctx) => {
+  ctx.reply(
+    `🌟 Welcome to the Weather Bot! 🌟
+
+Here’s what I can do for you:  
+
+1. **Subscribe to Daily Updates**  
+   Receive daily weather updates at **9:00 AM** for your chosen city.  
+   🔹 Command: \`/subscribe <city_name>\`  
+   Example: \`/subscribe Lucknow\`  
+
+2. **Unsubscribe from Updates**  
+   Stop receiving daily weather updates.  
+   🔹 Command: \`/unsubscribe\`  
+
+3. **Get Instant Weather Updates**  
+   Get the latest weather details for your subscribed city anytime!  
+   🔹 Command: \`/getweather\`  
+
+To get started, use **/subscribe <city>** to set up your daily weather updates. 🌤
+
+😎 Made by Aman Lalwani😎 
+`,
+    { parse_mode: "Markdown" }
+  );
+});
 bot.command("subscribe", (ctx) => {addUser(ctx) });
 bot.command("unsubscribe", (ctx) => {removeUser(ctx)});
 bot.command("getweather", (ctx) => {
@@ -97,7 +120,7 @@ async function sendWeatherUpdate(ctx) {
 
 
 // Scheduler for sending everyday weather updates
-cron.schedule("13 17 * * *", async () => {
+cron.schedule("0 9 * * *", async () => {
   const users = await getUsers();
   users.forEach(async (user) => {
     try{

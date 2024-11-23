@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import Settings from './Settings';
 import Users from './Users';
+import { useNavigate } from 'react-router-dom';
 
-function AdminPanel() {
+function AdminPanel({onSignOut}) {
     const [activeTab, setActiveTab] = useState('users');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+    const navigagte=useNavigate();
     return (
         <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
-            {/* Hamburger Button for Mobile */}
+  
             <div className='w-full h-10 bg-blue-600 md:hidden'></div>
             <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -17,7 +18,6 @@ function AdminPanel() {
                 {isSidebarOpen ? '✕' : '☰'}
             </button>
 
-            {/* Sidebar */}
             <div
                 className={`fixed inset-y-0 left-0 z-40 w-64 bg-blue-600 text-white transform transition-transform duration-300 ${
                     isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -29,7 +29,7 @@ function AdminPanel() {
                 <button
                     onClick={() => {
                         setActiveTab('users');
-                        setIsSidebarOpen(false); // Close on mobile after selection
+                        setIsSidebarOpen(false); 
                     }}
                     className={`w-3/4 mx-auto text-left px-4 py-2 rounded-lg ${
                         activeTab === 'users' ? 'bg-blue-800' : 'hover:bg-blue-700'
@@ -40,7 +40,7 @@ function AdminPanel() {
                 <button
                     onClick={() => {
                         setActiveTab('settings');
-                        setIsSidebarOpen(false); // Close on mobile after selection
+                        setIsSidebarOpen(false); 
                     }}
                     className={`w-3/4 mx-auto text-left px-4 py-2 mb-4 rounded-lg ${
                         activeTab === 'settings' ? 'bg-blue-800' : 'hover:bg-blue-700'
@@ -48,10 +48,20 @@ function AdminPanel() {
                 >
                     Update Settings
                 </button>
+                <button
+                    onClick={() => {
+                        setIsSidebarOpen(false);
+                        localStorage.removeItem("token");
+                        onSignOut();
+                        navigagte("/");
+                    }}
+                    className="w-3/4 mx-auto text-left px-4 py-2 mb-4 rounded-lg hover:bg-blue-700"
+                >
+                    Log Out
+                </button>
                 </div>
             </div>
 
-            {/* Overlay for Mobile */}
             {isSidebarOpen && (
                 <div
                     onClick={() => setIsSidebarOpen(false)}

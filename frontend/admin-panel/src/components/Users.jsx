@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 function Users() {
   const [users, setUsers] = useState([]);
   const [loading,setLoading]=useState(true);
-  const BACKEND_URL = "http://localhost:3000";
+  const BACKEND_URL = "https://admin-panel-ez0l.onrender.com";
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -109,6 +109,7 @@ function Users() {
   return (
     <div className="bg-white shadow-md rounded-lg p-6">
       <h2 className="text-xl font-semibold mb-4 text-gray-700">Manage Users</h2>
+      {users.length==0?<h2 className="text-2xl">No users are subscribed to the bot currently.</h2>:null}
       <ul className="space-y-4">
         {users.map((user) => (
           <li

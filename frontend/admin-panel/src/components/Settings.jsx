@@ -6,7 +6,7 @@ function Settings() {
   const [key, setKey] = useState("WEATHER_API_KEY");
   const [value, setValue] = useState("");
   const [inputVal, setInputVal] = useState("");
-  const BACKEND_URL = "http://localhost:3000";
+  const BACKEND_URL = "https://admin-panel-ez0l.onrender.com";
   const [isShow, setShow] = useState(false);
   const [updateMode, setUpdateMode] = useState(false);
   const [loading ,setLoading]=useState(true);

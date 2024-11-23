@@ -41,7 +41,7 @@ router.get("/me",async(req,res)=>{
     const token=req.headers.authorization?.split(' ')[1];
     try{
         const decode=await jwt.verify(token,process.env.JWT_SECRET);
-        console.log(decode);
+
         
         res.status(200).json({"message":"Authenticated","verified":true});
     }
